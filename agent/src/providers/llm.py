@@ -81,8 +81,7 @@ if ChatOpenAI is not None:
             messages = super()._convert_input(input_).to_messages()
             
             # Only inject reasoning_content for providers that support it
-            provider = os.getenv("LANGCHAIN_PROVIDER", "openai").lower()
-            supports_reasoning = provider not in {"groq", "gemini", "ollama"}
+            supports_reasoning = provider_supports_reasoning_content()
             
             for i, m in enumerate(payload["messages"]):
                 if m.get("role") != "assistant":
@@ -135,6 +134,13 @@ def _ensure_dotenv() -> None:
             _load_env_file(candidate)
             break
     _dotenv_loaded = True
+
+
+def provider_supports_reasoning_content() -> bool:
+    """Return True when the configured provider accepts reasoning_content."""
+    _ensure_dotenv()
+    provider = os.getenv("LANGCHAIN_PROVIDER", "openai").lower()
+    return provider not in {"groq", "gemini", "ollama"}
 
 
 def _sync_provider_env() -> None:

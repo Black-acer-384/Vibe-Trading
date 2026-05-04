@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from src.agent.memory import WorkspaceMemory
 from src.agent.skills import SkillsLoader
 from src.agent.tools import ToolRegistry
+from src.providers.llm import provider_supports_reasoning_content
 
 if TYPE_CHECKING:
     from src.memory.persistent import PersistentMemory
@@ -242,6 +244,6 @@ class ContextBuilder:
                 for tc in tool_calls
             ],
         }
-        if reasoning_content is not None:
+        if reasoning_content is not None and provider_supports_reasoning_content():
             message["reasoning_content"] = reasoning_content
         return message
