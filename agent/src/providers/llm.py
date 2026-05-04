@@ -73,15 +73,27 @@ if ChatOpenAI is not None:
             back to OpenAI wire format. Moonshot kimi-k2.5 also rejects
             assistant turns where ``content`` is null or ``reasoning_content``
             is absent, breaking ReAct continuations after a tool call (#39).
+            
+            Note: Only inject reasoning_content for providers that support it.
+            Groq and other strict providers reject this field.
             """
             payload = super()._get_request_payload(input_, stop=stop, **kwargs)
             messages = super()._convert_input(input_).to_messages()
+            
+            # Only inject reasoning_content for providers that support it
+            provider = os.getenv("LANGCHAIN_PROVIDER", "openai").lower()
+            supports_reasoning = provider not in {"groq", "gemini", "ollama"}
+            
             for i, m in enumerate(payload["messages"]):
                 if m.get("role") != "assistant":
                     continue
                 if m.get("content") is None:
                     m["content"] = ""
-                m["reasoning_content"] = messages[i].additional_kwargs.get("reasoning_content", "")
+                if supports_reasoning:
+                    m["reasoning_content"] = messages[i].additional_kwargs.get("reasoning_content", "")
+                else:
+                    # Remove reasoning_content if present for non-supporting providers
+                    m.pop("reasoning_content", None)
             return payload
 else:
     ChatOpenAIWithReasoning = None  # type: ignore
