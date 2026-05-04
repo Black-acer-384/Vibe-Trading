@@ -1,0 +1,18 @@
+name: nse_kenya_screener
+description: Screen NSE Kenya stocks by price, volume, and sector
+category: kenya_equities
+version: "1.0"
+entry: nse_screener.py
+parameters:
+  sector:
+    type: string
+    description: "NSE sector e.g. Banking, Telecom, Energy"
+    required: false
+  min_price:
+    type: float
+    description: Minimum price in KES
+    required: false
+  min_volume:
+    type: integer
+    description: Minimum daily volume
+    required: false
