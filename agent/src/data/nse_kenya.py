@@ -24,3 +24,21 @@ def get_nse_ticker(symbol: str) -> dict:
     if row.empty:
         return {"error": f"{symbol} not found on NSE"}
     return row.iloc[0].to_dict()
+
+def get_nse_history(ticker, days=365):
+    """
+    Fetches historical data for a specific ticker.
+    For now, we can use the same Kwayisi source which provides 
+    recent history in their ticker-specific pages.
+    """
+    # Kwayisi URL format for specific stocks: https://afx.kwayisi.org/nse/scom/
+    url = f"https://afx.kwayisi.org/nse/{ticker.lower()}/"
+    response = requests.get(url, timeout=10)
+    
+    # Read the historical price table (usually the second table on the page)
+    tables = pd.read_html(response.text)
+    
+    # Kwayisi usually lists historical prices in a table on this page
+    # We return the data so it can be saved to CSV
+    df = tables[1] if len(tables) > 1 else tables[0]
+    return df

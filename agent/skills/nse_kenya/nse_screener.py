@@ -1,5 +1,5 @@
 import pandas as pd
-from agent.src.data.nse_kenya import get_nse_prices
+from src.data.nse_kenya import get_nse_prices
 
 def run(sector=None, min_price=None, min_volume=None):
     df = get_nse_prices()
